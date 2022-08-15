@@ -12,7 +12,11 @@ class UserWidget {
    * необходимо выкинуть ошибку.
    * */
   constructor(element){
-
+    if (!element) {
+      throw new Error('Ошибка конструктора класса AsyncForm, пустое значение "element"');
+    };
+    this.element = element;
+    this.update();
   }
 
   /**
@@ -23,6 +27,9 @@ class UserWidget {
    * авторизованного пользователя
    * */
   update(){
-
+    const user = User.current();
+    if (user) {
+      this.element.querySelector('.user-name').textContent = JSON.parse(user).name;
+    }
   }
 }
