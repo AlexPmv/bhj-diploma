@@ -52,7 +52,7 @@ class TransactionsPage {
     this.element.addEventListener('click', (e) => {
       const target = e.target;
 
-      if (!this.lastOptions) {
+      if (!this.lastOptions && (target.classList.contains('remove-account') || target.classList.contains('fa-trash'))) {
         alert('Сначала выберете счет');
         return;
       }
