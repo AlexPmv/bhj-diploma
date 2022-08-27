@@ -50,14 +50,15 @@ class AccountsWidget {
   update() {
     const currentUser = User.current();
     if (currentUser) {
-      Account.list(JSON.parse(currentUser), (err, response) => {
+      Account.list({}, (err, response) => {
         if (err) {
           console.log(err);
-        }
-        if (response.success) {
+        } else if (!response.success) {
+          console.log(response.error);
+        } else if (response.success) {
           this.clear();
           this.renderItem(response.data);
-        }
+        };
       });
     }
   }

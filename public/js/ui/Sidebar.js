@@ -20,12 +20,7 @@ class Sidebar {
   static initToggleButton() {
     const sideBarBtn = document.querySelector('.sidebar-toggle');
     sideBarBtn.addEventListener('click', () => {
-      const app = document.querySelector('.app');
-      if (!app.classList.contains('sidebar-open', 'sidebar-collapse')) {
-        app.classList.add('sidebar-open', 'sidebar-collapse');
-      } else if (app.classList.contains('sidebar-open', 'sidebar-collapse')) {
-        app.classList.remove('sidebar-open', 'sidebar-collapse');
-      }; 
+      document.querySelector('.app').classList.toggle('sidebar-open');
     });
   }
 

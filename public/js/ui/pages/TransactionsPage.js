@@ -18,6 +18,7 @@ class TransactionsPage {
     };
     this.element = element;
     this.accountTitle = this.element.querySelector('.content-title');
+    this.contentHeader = this.element.querySelector('.content-header');
     this.content = this.element.querySelector('.content');
     this.registerEvents();
   }
@@ -39,25 +40,19 @@ class TransactionsPage {
     this.content.addEventListener('click', (e) => {
       const target = e.target;
 
-      if (target.classList.contains('transaction__remove') || (target.classList.contains('fa-trash') && target.closest('.transaction__remove'))) {
-          if (target.classList.contains('fa-trash')) {
-            this.removeTransaction(target.closest('.transaction__remove').dataset.id);
-            return;
-          }
-
-          this.removeTransaction(target.dataset.id);
+      if (target.closest('.transaction__remove').classList.contains('transaction__remove')) {
+        this.removeTransaction(target.closest('.transaction__remove').dataset.id);
       };
     })
     
-    this.element.addEventListener('click', (e) => {
+    this.contentHeader.addEventListener('click', (e) => {
       const target = e.target;
 
-      if (!this.lastOptions && (target.classList.contains('remove-account') || target.classList.contains('fa-trash'))) {
-        alert('Сначала выберете счет');
-        return;
-      }
-
-      if (target.classList.contains('remove-account') || (target.classList.contains('fa-trash') && target.closest('.remove-account'))) {
+      if (target.closest('.remove-account').classList.contains('remove-account')) {
+        if (!this.lastOptions) {
+          console.log('Сначала выберете счет');
+          return;
+        }
           this.removeAccount();
       };
     })
@@ -77,8 +72,12 @@ class TransactionsPage {
       return;
     };
 
-    Account.remove(this.lastOptions.account_id, (err, response) => {
-      if (response.success) {
+    Account.remove({id: this.lastOptions.account_id}, (err, response) => {
+      if (err) {
+        console.log(err);
+      } else if (!response.success) {
+        console.log(response.error);
+      } else if (response.success) {
         this.clear();
         App.updateWidgets();
         App.updateForms();
@@ -97,11 +96,15 @@ class TransactionsPage {
       return;
     };
 
-    Transaction.remove(id, (err, response) => {
-      if (response.success) {
-        this.update();
-        App.updateWidgets();
-      };
+    Transaction.remove({id: id}, (err, response) => {
+        if (err) {
+          console.log(err);
+        } else if (!response.success) {
+          console.log(response.error);
+        } else if (response.success) {
+          this.update();
+          App.updateWidgets();
+        }
     })
   }
 
@@ -121,18 +124,32 @@ class TransactionsPage {
     this.lastOptions = options;
     
     Account.get(options.account_id, (err, response) => {
-      const accountName = response.data.find((item) => {
+      if (err) {
+        console.log(err);
+      } else if (!response.success) {
+        console.log(response.error);
+      } else if (response.success) {
+        const accountName = response.data.find((item) => {
         return item.id === options.account_id;
-      }).name;
+        }).name;
 
-      if (accountName) {
-        this.renderTitle(accountName);
-        Transaction.list(options, (err, response) => {
-          if (response.data.length > 0) {
-            this.renderTransactions(response.data);
-          }
-        })
-      };
+        if (accountName) {
+          Transaction.list(options, (err, response) => {
+            if (err) {
+              console.log(err);
+              return;
+            } else if (!response.success) {
+              console.log(response.error);
+            } else if (response.success) {
+              if (response.data.length > 0) {
+                this.renderTransactions(response.data);
+              };
+            };
+          })
+
+          this.renderTitle(accountName);
+        };
+      }
     })
   }
 
@@ -200,11 +217,15 @@ class TransactionsPage {
   renderTransactions(data){
     if (data.length === 0) {
       this.content.innerHTML = '';
+      return;
     }
 
-    data.forEach((item) => {
-      this.content.innerHTML += this.getTransactionHTML(item);
-    })
-
+    data.reduce((htmlText, item, idx) => {
+      if (idx + 1 === data.length) {
+        htmlText += this.getTransactionHTML(item);
+        this.content.innerHTML = htmlText;
+      }
+      return htmlText += this.getTransactionHTML(item);
+    }, '');
   }
 }

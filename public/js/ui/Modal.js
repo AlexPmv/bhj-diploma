@@ -38,11 +38,9 @@ class Modal {
    * Закрывает текущее окно (Modal.close())
    * */
   onClose(e) {
-    let modalName = e.target.closest('.modal').dataset.modalId;
-    if (modalName === 'newAccount') {
-      modalName = 'createAccount';
+    if (e.target.closest('.modal')) {
+      this.close();
     };
-    App.getModal(modalName).close();
   }
   /**
    * Открывает окно: устанавливает CSS-свойство display

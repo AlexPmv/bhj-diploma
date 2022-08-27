@@ -20,19 +20,24 @@ class CreateTransactionForm extends AsyncForm {
     const currentUser = User.current();
     
     if (currentUser) {
-      Account.list(JSON.parse(currentUser), (err, response) => {
+      Account.list({}, (err, response) => {
         if (err) {
           console.log(err);
-        }
-        if (response.success) {
+        } else if (!response.success) {
+          console.log(response.error);
+        } else if (response.success) {
           const currentList = this.form.querySelector(`.accounts-select`);
-          currentList.innerHTML = '';
 
           const accountList = response.data;
-          accountList.forEach((item) => {
-            currentList.innerHTML += `<option value="${item.id}">${item.name}</option>`
-          });
-        }
+          accountList.reduce((htmlText, item, idx) => {
+            if (idx + 1 === accountList.length) {
+              htmlText += `<option value="${item.id}">${item.name}</option>`
+              currentList.innerHTML = htmlText;
+            };
+
+            return htmlText += `<option value="${item.id}">${item.name}</option>`;
+          }, '');
+        };
       });
     }
   }
@@ -45,7 +50,11 @@ class CreateTransactionForm extends AsyncForm {
    * */
   onSubmit(data) {
     Transaction.create(data, (err, response) => {
-      if (response.success) {
+      if (err) {
+        console.log(err);
+      } else if (!response.success) {
+        console.log(response.error);
+      } else if (response.success) {
         this.form.reset();
 
         if (this.form.id === 'new-expense-form') {

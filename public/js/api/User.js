@@ -34,7 +34,7 @@ class User {
    * из локального хранилища
    * */
   static current() {
-    return localStorage.user;
+    return JSON.parse(localStorage.getItem('user'));
   }
 
   /**
@@ -46,11 +46,14 @@ class User {
       url: this.URL + '/current',
       method: 'GET',
       callback: (err, response) => {
-        if (response.success && response.user) {
-          this.setCurrent(response.user);
-        } else {
+        if (err) {
+          console.log(err);
           this.unsetCurrent();
+          return;
+        } else if (response && response.user) {
+          this.setCurrent(response.user);
         };
+
         callback();
       }
     });
@@ -68,10 +71,14 @@ class User {
       method: 'POST',
       data,
       callback: (err, response) => {
-        if (response && response.user) {
+        if (err) {
+          console.log(err);
+          return;
+        } else if (response && response.user) {
           this.setCurrent(response.user);
         }
-        callback(err, response);
+
+        callback();
       }
     });
   }
@@ -88,10 +95,13 @@ class User {
       method: 'POST',
       data,
       callback: (err, response) => {
-        if (response && response.user) {
+        if (err) {
+          console.log(err);
+          return;
+        } else if (response && response.user) {
           this.setCurrent(response.user);
         }
-        callback(err, response);
+        callback();
       }
     });
   }
@@ -105,13 +115,13 @@ class User {
       url: this.URL + '/logout',
       method: 'POST',
       callback: (err, response) => {
-        if (response.success) {
-          callback();
-        } else {
+        if (err) {
           console.log(err);
+          return;
+        } else if (response) {
+          callback();
         }
       }
     });
-
   }
 }

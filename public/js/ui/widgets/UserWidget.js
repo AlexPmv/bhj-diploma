@@ -28,8 +28,9 @@ class UserWidget {
    * */
   update(){
     const user = User.current();
+    
     if (user) {
-      this.element.querySelector('.user-name').textContent = JSON.parse(user).name;
+      this.element.querySelector('.user-name').textContent = user.name;
     }
   }
 }

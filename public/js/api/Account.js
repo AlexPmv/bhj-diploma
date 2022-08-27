@@ -10,6 +10,6 @@ class Account extends Entity {
    * Получает информацию о счёте
    * */
   static get(id = '', callback){
-    this.list(id, callback);
+    this.list({id: id}, callback);
   }
 }
